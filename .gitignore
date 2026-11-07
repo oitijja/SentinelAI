@@ -1,0 +1,35 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local AI models
+models/
+*.gguf
+*.ggml
+
+# Runtime files
+data/
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.db
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Backups
+*-backup.html
+*backup*/

@@ -1,0 +1,1372 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080f1d">
+<title>Sentinel | Security Operations Center</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #080f1d;
+  --sidebar: #0c1626;
+  --panel: #111e31;
+  --panel2: #15243a;
+  --border: #253751;
+  --text: #edf4ff;
+  --muted: #92a7c2;
+  --accent: #42d4b0;
+  --accent-dim: #143d39;
+  --critical: #ff637b;
+  --high: #ffab68;
+  --medium: #f1cb6a;
+  --low: #66bfe6;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--bg);
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+[hidden] { display: none !important; }
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+}
+.sidebar {
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  padding: 27px 17px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 8px 29px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  background: #174541;
+  border: 1px solid #2c6860;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 800;
+}
+.brand-name {
+  font-size: 21px;
+  font-weight: 850;
+  letter-spacing: -.8px;
+}
+.brand-name span { color: var(--accent); }
+.brand-caption {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  font-weight: 800;
+}
+.nav-label {
+  margin: 28px 12px 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  font-size: 10px;
+  color: #7187a2;
+  font-weight: 800;
+}
+.nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 12px 13px;
+  margin: 3px 0;
+  color: #aabbd2;
+  font-weight: 650;
+  font-size: 13px;
+}
+.nav-btn:hover,
+.nav-btn.active {
+  background: #173332;
+  color: #8cf1d2;
+  border-color: #285650;
+}
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 17px;
+}
+.sidebar-bottom { margin-top: auto; }
+.local-box {
+  background: #10272b;
+  border: 1px solid #27544f;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 12px;
+}
+.local-box b { color: #9af0d6; }
+.local-box p {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.green-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-right: 7px;
+  box-shadow: 0 0 10px #42d4b088;
+}
+.sidebar-foot {
+  font-size: 10px;
+  margin: 14px 7px 0;
+  color: #7487a2;
+}
+
+.main {
+  min-width: 0;
+  background:
+    radial-gradient(ellipse at 92% 0%, #13333955, transparent 33%),
+    var(--bg);
+}
+.topbar {
+  min-height: 77px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 17px 34px;
+  gap: 15px;
+}
+.breadcrumb {
+  color: var(--muted);
+  font-size: 13px;
+}
+.breadcrumb strong { color: var(--text); }
+.status-pill {
+  background: #12312f;
+  border: 1px solid #286158;
+  border-radius: 99px;
+  color: #a1efd7;
+  padding: 8px 13px;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.content {
+  width: 100%;
+  max-width: 1440px;
+  margin: auto;
+  padding: 31px 34px 60px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.page-title {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -1.6px;
+  margin: 8px 0 9px;
+  line-height: 1.15;
+}
+.page-desc {
+  color: var(--muted);
+  margin: 0;
+  font-size: 13px;
+  max-width: 690px;
+  line-height: 1.8;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 31px 0 14px;
+}
+.section-title h2 {
+  font-size: 17px;
+  letter-spacing: -.35px;
+  margin: 0;
+}
+.section-caption {
+  font-size: 11px;
+  color: var(--muted);
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.kpi {
+  background: linear-gradient(150deg, #15243a, #101b2c);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  min-width: 0;
+}
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.kpi-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.kpi-icon {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 9px;
+  background: #20334c;
+  color: #b2c7e3;
+  font-size: 15px;
+}
+.kpi-value {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 33px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.kpi-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+.kpi.critical .kpi-value { color: var(--critical); }
+.kpi.high .kpi-value { color: var(--high); }
+.kpi.medium .kpi-value { color: var(--medium); }
+.kpi.total .kpi-value { color: var(--accent); }
+
+.panel {
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, #142238, #101b2d);
+  border-radius: 15px;
+  padding: 23px;
+  min-width: 0;
+}
+.panel h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  letter-spacing: -.3px;
+}
+.panel-sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 20px;
+}
+.grid-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(270px, 1fr);
+  gap: 16px;
+}
+.uploader {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.dropzone {
+  border: 1px dashed #47617e;
+  background: #0d192c;
+  border-radius: 12px;
+  padding: 28px 15px;
+  text-align: center;
+}
+.upload-symbol {
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  background: #153c3d;
+  color: var(--accent);
+  font-size: 27px;
+}
+.dropzone b { font-size: 14px; }
+.dropzone p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 5px 0 14px;
+}
+.dropzone input {
+  max-width: 100%;
+  color: #c0d0e5;
+  font-size: 12px;
+}
+.btn {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #082721;
+  font-size: 12px;
+  font-weight: 850;
+  border-radius: 9px;
+  padding: 12px 17px;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.08); }
+.btn.secondary {
+  border-color: #3c526e;
+  background: #233852;
+  color: var(--text);
+}
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 13px;
+  margin-top: 17px;
+}
+.message {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.message.success { color: #83ebc7; }
+.message.error { color: #ff8e9f; }
+
+.workflow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.workflow-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.workflow-num {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  background: #173d3d;
+  border: 1px solid #31665e;
+  color: var(--accent);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 850;
+}
+.workflow-step b {
+  font-size: 12px;
+}
+.workflow-step p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 3px 0 0;
+  line-height: 1.6;
+}
+.workflow-line {
+  width: 1px;
+  height: 12px;
+  background: #38546c;
+  margin-left: 14px;
+}
+.progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.progress-status {
+  font-size: 15px;
+  font-weight: 800;
+}
+.progress-percent {
+  color: var(--accent);
+  font-size: 23px;
+  font-weight: 850;
+}
+.track {
+  background: #293b55;
+  border-radius: 40px;
+  height: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.track-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg,#258c91,#55e1b4);
+  border-radius: 40px;
+  transition: width .3s;
+}
+.progress-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+.visuals {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  gap: 16px;
+}
+.chart-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  min-height: 210px;
+}
+.donut {
+  width: 178px;
+  height: 178px;
+  border-radius: 50%;
+  background: #273750;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.donut-center {
+  width: 122px;
+  height: 122px;
+  background: #122035;
+  border-radius: 50%;
+  border: 1px solid #2e4058;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.donut-center strong {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.donut-center span {
+  color: var(--muted);
+  margin-top: 7px;
+  font-size: 11px;
+}
+.legend { min-width: 150px; flex: 1; max-width: 220px; }
+.legend-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 0;
+  font-size: 12px;
+}
+.legend-label {
+  color: #c1d0e2;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.legend-row strong { font-variant-numeric: tabular-nums; }
+.bar-row { margin: 17px 0; }
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #c2d0e4;
+}
+.mini-track {
+  height: 9px;
+  background: #263951;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.mini-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 20px;
+  transition: width .3s;
+}
+.report-summary {
+  margin: 12px 0 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.search {
+  min-width: 210px;
+  flex: 1;
+  background: #0e1a2b;
+  border: 1px solid #354a65;
+  color: var(--text);
+  border-radius: 9px;
+  padding: 11px 13px;
+  outline: none;
+  font-size: 12px;
+}
+.search:focus { border-color: var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter {
+  background: #192a40;
+  color: #b5c9e1;
+  border: 1px solid #354a63;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 11px;
+  font-weight: 750;
+}
+.filter.active {
+  color: #b4f5e2;
+  background: #1b4944;
+  border-color: #3a8d7f;
+}
+.finding {
+  background: #101d30;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 12px 0;
+  padding: 19px;
+}
+.finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.finding-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 9px 0 4px;
+}
+.finding-ip {
+  font-size: 12px;
+  color: #83b8ff;
+  font-family: Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.badge {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 4px 9px;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .6px;
+}
+.badge.Critical { background: #562638; color: #ff9dac; }
+.badge.High { background: #563721; color: #ffc08b; }
+.badge.Medium { background: #4c4225; color: #f2dc96; }
+.badge.Low { background: #1e4152; color: #a2d9f2; }
+.detection-source {
+  color: #8298b4;
+  font-size: 11px;
+}
+.finding-reason {
+  font-size: 13px;
+  color: #becfe2;
+  margin: 15px 0;
+  line-height: 1.7;
+}
+.evidence {
+  border-radius: 9px;
+  border: 1px solid #27495b;
+  background: #11283a;
+  padding: 12px 13px;
+}
+.evidence-label {
+  font-size: 10px;
+  font-weight: 850;
+  color: #7cddc8;
+  letter-spacing: .5px;
+}
+.evidence-lines {
+  font-size: 12px;
+  font-family: Consolas, monospace;
+  color: #c1eddf;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.recommendation {
+  margin-top: 14px;
+  color: #c7d7e8;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.recommendation b { color: white; }
+.report-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 20px;
+}
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 30px 10px;
+  font-size: 13px;
+}
+footer {
+  border-top: 1px solid var(--border);
+  color: #7489a6;
+  font-size: 11px;
+  padding-top: 21px;
+  margin-top: 34px;
+}
+@media (max-width: 1100px) {
+  .app { grid-template-columns: 190px minmax(0,1fr); }
+  .cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .grid-main { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .app { display: block; }
+  .sidebar { position: static; height: auto; padding: 15px; }
+  .sidebar .brand { padding-bottom: 12px; }
+  .nav-label, .sidebar-bottom { display: none; }
+  .nav-links { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+  .nav-btn { width: auto; margin: 0; padding: 8px 10px; }
+  .nav-btn span:last-child { display: none; }
+  .topbar { padding: 15px 18px; }
+  .content { padding: 23px 17px 40px; }
+  .visuals { grid-template-columns: 1fr; }
+}
+@media (max-width: 440px) {
+  .cards { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .kpi { padding: 14px; }
+  .kpi-value { font-size: 27px; }
+  .panel { padding: 17px; }
+  .status-pill { font-size: 9px; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-icon">◇</span>
+    <div>
+      <div class="brand-name"><span>Sentinel</span></div>
+      <div class="brand-caption">SECURITY INTELLIGENCE</div>
+    </div>
+  </div>
+
+  <div class="nav-label">Workspace</div>
+  <nav class="nav-links" aria-label="Dashboard navigation">
+    <button class="nav-btn active" data-target="overview">
+      <span class="nav-icon">▦</span><span>Overview</span>
+    </button>
+    <button class="nav-btn" data-target="uploadSection">
+      <span class="nav-icon">⇧</span><span>Log Analysis</span>
+    </button>
+    <button class="nav-btn" data-target="findingsSection">
+      <span class="nav-icon">◇</span><span>Security Findings</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="local-box">
+      <b><span class="green-dot"></span>Local AI Architecture</b>
+      <p>Inference through llama.cpp. Log processing remains on this machine.</p>
+    </div>
+    <div class="sidebar-foot">Sentinel · Security Operations</div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="breadcrumb">Workspace / <strong>Security Overview</strong></div>
+    <div class="status-pill"><span class="green-dot"></span>LOCAL INFERENCE MODE</div>
+  </header>
+
+  <div class="content">
+
+    <section id="overview">
+      <div class="eyebrow">Security operations center</div>
+      <h1 class="page-title">Security Overview</h1>
+      <p class="page-desc">
+        Analyze server logs, identify suspicious activity and correlate
+        evidence across the entire file with a locally hosted AI model.
+      </p>
+    </section>
+
+    <div class="section-title">
+      <h2>Incident Summary</h2>
+      <span class="section-caption" id="summaryState">
+        No analysis loaded
+      </span>
+    </div>
+
+    <div class="cards">
+      <div class="kpi total">
+        <div class="kpi-top">
+          <span class="kpi-label">Total Findings</span>
+          <span class="kpi-icon">▦</span>
+        </div>
+        <strong class="kpi-value" id="total">—</strong>
+        <div class="kpi-note">Consolidated detections</div>
+      </div>
+      <div class="kpi critical">
+        <div class="kpi-top">
+          <span class="kpi-label">Critical</span>
+          <span class="kpi-icon">!</span>
+        </div>
+        <strong class="kpi-value" id="criticalCount">—</strong>
+        <div class="kpi-note">Highest priority findings</div>
+      </div>
+      <div class="kpi high">
+        <div class="kpi-top">
+          <span class="kpi-label">High</span>
+          <span class="kpi-icon">↑</span>
+        </div>
+        <strong class="kpi-value" id="highCount">—</strong>
+        <div class="kpi-note">High-priority findings</div>
+      </div>
+      <div class="kpi medium">
+        <div class="kpi-top">
+          <span class="kpi-label">Medium / Low</span>
+          <span class="kpi-icon">◆</span>
+        </div>
+        <strong class="kpi-value" id="mediumCount">—</strong>
+        <div class="kpi-note">Additional findings</div>
+      </div>
+    </div>
+
+    <div class="section-title" id="uploadSection">
+      <h2>Log Analysis Workspace</h2>
+      <span class="section-caption">Local processing</span>
+    </div>
+
+    <div class="grid-main">
+      <section class="panel uploader">
+        <div>
+          <h3>Upload Security Logs</h3>
+          <p class="panel-sub">Select a file to launch a new analysis.</p>
+          <div class="dropzone">
+            <div class="upload-symbol">⇧</div>
+            <b>Select a log file</b>
+            <p>.log or .txt · Maximum 8 MB</p>
+            <input id="file" type="file" accept=".log,.txt">
+          </div>
+        </div>
+        <div class="upload-actions">
+          <button class="btn" id="start">Start Analysis →</button>
+          <div id="message" class="message" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Analysis Pipeline</h3>
+        <p class="panel-sub">Evidence-focused local detection workflow</p>
+
+        <div class="workflow">
+          <div class="workflow-step">
+            <span class="workflow-num">01</span>
+            <div>
+              <b>Upload & Validate</b>
+              <p>Accept a local text log and retain physical line numbers.</p>
+            </div>
+          </div>
+          <div class="workflow-line"></div>
+          <div class="workflow-step">
+            <span class="workflow-num">02</span>
+            <div>
+              <b>Token-Aware Chunking</b>
+              <p>Prepare bounded chunks for sequential AI inference.</p>
+            </div>
+          </div>
+          <div class="workflow-line"></div>
+          <div class="workflow-step">
+            <span class="workflow-num">03</span>
+            <div>
+              <b>Cross-Chunk Correlation</b>
+              <p>Connect related authentication, request and access events.</p>
+            </div>
+          </div>
+          <div class="workflow-line"></div>
+          <div class="workflow-step">
+            <span class="workflow-num">04</span>
+            <div>
+              <b>Evidence-Based Report</b>
+              <p>Review findings, evidence references and suggested actions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" id="progress" hidden style="margin-top:16px">
+      <div class="section-title" style="margin:0 0 18px">
+        <h2>Analysis Progress</h2>
+        <span class="section-caption">Sequential execution</span>
+      </div>
+      <div class="progress-head">
+        <div class="progress-status" id="progressText">Starting…</div>
+        <div class="progress-percent" id="percent">0%</div>
+      </div>
+      <div class="track">
+        <div class="track-fill" id="fill"></div>
+      </div>
+      <div class="progress-foot">
+        <span id="modelTime">Model processing time: 0s</span>
+        <span>Local llama.cpp inference</span>
+      </div>
+      <div style="margin-top:17px">
+        <button class="btn secondary" id="retry" hidden>
+          ↻ Resume Failed Analysis
+        </button>
+      </div>
+    </section>
+
+    <section id="report" hidden>
+
+      <div class="section-title">
+        <h2>Security Analytics</h2>
+        <span class="section-caption">Derived from this report</span>
+      </div>
+
+      <div class="visuals">
+
+        <div class="panel">
+          <h3>Severity Distribution</h3>
+          <p class="panel-sub">Share of consolidated findings</p>
+          <div class="chart-wrap">
+            <div class="donut" id="donut">
+              <div class="donut-center">
+                <strong id="donutTotal">0</strong>
+                <span>Findings</span>
+              </div>
+            </div>
+            <div class="legend" id="legend"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Severity Breakdown</h3>
+          <p class="panel-sub">Number of findings by severity</p>
+          <div id="severityBars"></div>
+        </div>
+      </div>
+
+      <div class="section-title" id="findingsSection">
+        <h2>Incident Findings</h2>
+        <span class="section-caption">Evidence-linked detections</span>
+      </div>
+
+      <div class="panel">
+        <div class="report-summary" id="reportSummary"></div>
+
+        <div class="toolbar">
+          <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search IP address, threat or evidence…"
+            aria-label="Search findings"
+          >
+          <div class="filters">
+            <button class="filter active" data-severity="All">All</button>
+            <button class="filter" data-severity="Critical">Critical</button>
+            <button class="filter" data-severity="High">High</button>
+            <button class="filter" data-severity="Medium">Medium</button>
+            <button class="filter" data-severity="Low">Low</button>
+          </div>
+        </div>
+
+        <div id="findings"></div>
+
+        <div class="report-bottom">
+          <span class="section-caption" id="shownCount"></span>
+          <button class="btn" id="export">↓ Export JSON Report</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Sentinel / Local Security Intelligence · All findings require human verification.
+      Suspicious events do not, by themselves, prove a successful compromise.
+    </footer>
+  </div>
+</main>
+</div>
+
+<script>
+"use strict";
+
+let jid = null;
+let lastReport = null;
+let timer = null;
+let activeSeverity = "All";
+
+const $ = id => document.getElementById(id);
+
+const escapeHtml = value =>
+  String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+
+function showMessage(text, type = "") {
+  $("message").textContent = text;
+  $("message").className = "message " + type;
+}
+
+function cleanSeverity(value) {
+  return ["Critical", "High", "Medium", "Low"].includes(value)
+    ? value
+    : "Low";
+}
+
+function countsFor(findings) {
+  const counts = {
+    Critical: 0,
+    High: 0,
+    Medium: 0,
+    Low: 0
+  };
+
+  for (const finding of findings) {
+    counts[cleanSeverity(finding.severity)]++;
+  }
+
+  return counts;
+}
+
+const severityColors = {
+  Critical: "#ff637b",
+  High: "#ffab68",
+  Medium: "#f1cb6a",
+  Low: "#66bfe6"
+};
+
+function renderCharts(findings) {
+  const counts = countsFor(findings);
+  const total = findings.length;
+
+  $("donutTotal").textContent = total;
+
+  const order = ["Critical", "High", "Medium", "Low"];
+  const parts = [];
+  let start = 0;
+
+  for (const severity of order) {
+    const fraction = total ? counts[severity] / total * 100 : 0;
+
+    if (fraction > 0) {
+      const end = start + fraction;
+      parts.push(
+        `${severityColors[severity]} ${start}% ${end}%`
+      );
+      start = end;
+    }
+  }
+
+  $("donut").style.background = total
+    ? `conic-gradient(${parts.join(", ")})`
+    : "#293b55";
+
+  $("legend").innerHTML = order.map(severity => `
+    <div class="legend-row">
+      <span class="legend-label">
+        <span class="legend-dot"
+          style="background:${severityColors[severity]}"></span>
+        ${severity}
+      </span>
+      <strong>${counts[severity]}</strong>
+    </div>
+  `).join("");
+
+  $("severityBars").innerHTML = order.map(severity => {
+    const width = total ? counts[severity] / total * 100 : 0;
+    return `
+      <div class="bar-row">
+        <div class="bar-label">
+          <span>${severity}</span>
+          <strong>${counts[severity]}</strong>
+        </div>
+        <div class="mini-track">
+          <div class="mini-fill"
+            style="width:${width}%;background:${severityColors[severity]}">
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderFindings() {
+  if (!lastReport) return;
+
+  const query = $("search").value.trim().toLowerCase();
+  const findings = Array.isArray(lastReport.findings)
+    ? lastReport.findings
+    : [];
+
+  const visible = findings.filter(finding => {
+    if (
+      activeSeverity !== "All" &&
+      cleanSeverity(finding.severity) !== activeSeverity
+    ) {
+      return false;
+    }
+
+    const searchable = [
+      finding.type,
+      finding.severity,
+      finding.ip,
+      finding.reason,
+      finding.action,
+      ...(Array.isArray(finding.lines) ? finding.lines : [])
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(query);
+  });
+
+  $("shownCount").textContent =
+    `Showing ${visible.length} of ${findings.length} findings`;
+
+  $("findings").innerHTML = visible.length
+    ? visible.map(f => {
+      const severity = cleanSeverity(f.severity);
+      const lines = Array.isArray(f.lines) ? f.lines : [];
+
+      return `
+        <article class="finding">
+          <div class="finding-header">
+            <div>
+              <span class="badge ${severity}">
+                ${escapeHtml(severity)}
+              </span>
+              <div class="finding-title">
+                ${escapeHtml(f.type)}
+              </div>
+              <div class="finding-ip">
+                ${escapeHtml(f.ip)}
+              </div>
+            </div>
+            <span class="detection-source">
+              Detection: ${escapeHtml(f.source)}
+            </span>
+          </div>
+
+          <p class="finding-reason">
+            ${escapeHtml(f.reason)}
+          </p>
+
+          <div class="evidence">
+            <div class="evidence-label">
+              SOURCE EVIDENCE LINES
+            </div>
+            <div class="evidence-lines">
+              ${escapeHtml(lines.join(", "))}
+            </div>
+          </div>
+
+          <div class="recommendation">
+            <b>Recommended action:</b>
+            ${escapeHtml(f.action)}
+          </div>
+        </article>
+      `;
+    }).join("")
+    : '<div class="empty">No findings match the selected search or severity.</div>';
+}
+
+function render(report) {
+  if (typeof report === "string") {
+    report = JSON.parse(report);
+  }
+
+  if (!report || !Array.isArray(report.findings)) {
+    throw new Error("Invalid security report returned by backend.");
+  }
+
+  lastReport = report;
+  const findings = report.findings;
+  const counts = countsFor(findings);
+
+  $("total").textContent = findings.length;
+  $("criticalCount").textContent = counts.Critical;
+  $("highCount").textContent = counts.High;
+  $("mediumCount").textContent = counts.Medium + counts.Low;
+
+  $("summaryState").textContent = "Analysis completed";
+
+  $("reportSummary").textContent =
+    `${report.chunk_count ?? 0} chunks processed · ` +
+    `${report.line_count ?? 0} log lines · ` +
+    `${findings.length} consolidated findings`;
+
+  $("search").value = "";
+  activeSeverity = "All";
+
+  document.querySelectorAll(".filter").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.severity === "All"
+    );
+  });
+
+  renderCharts(findings);
+  renderFindings();
+
+  $("report").hidden = false;
+}
+
+function resetSummary() {
+  for (const id of [
+    "total", "criticalCount", "highCount", "mediumCount"
+  ]) {
+    $(id).textContent = "—";
+  }
+
+  $("summaryState").textContent = "Analysis in progress";
+}
+
+$("start").onclick = async () => {
+  const file = $("file").files[0];
+
+  if (!file) {
+    showMessage("Select a log file first.", "error");
+    return;
+  }
+
+  clearTimeout(timer);
+
+  jid = null;
+  lastReport = null;
+  resetSummary();
+
+  $("start").disabled = true;
+  $("retry").hidden = true;
+  $("report").hidden = true;
+  $("progress").hidden = false;
+  $("fill").style.width = "0%";
+  $("percent").textContent = "0%";
+  $("progressText").textContent = "Uploading log file…";
+
+  showMessage("Uploading log file…");
+
+  const form = new FormData();
+  form.append("file", file);
+
+  try {
+    const response = await fetch("/api/jobs", {
+      method: "POST",
+      body: form
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Upload failed");
+    }
+
+    jid = data.id;
+    showMessage("Upload accepted. Analysis started.", "success");
+    poll();
+
+  } catch (error) {
+    showMessage(error.message, "error");
+    $("progress").hidden = true;
+    $("start").disabled = false;
+    $("summaryState").textContent = "No analysis loaded";
+  }
+};
+
+async function poll() {
+  clearTimeout(timer);
+
+  if (!jid) return;
+
+  try {
+    const response = await fetch("/api/jobs/" + jid);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Status request failed");
+    }
+
+    const percent = data.total
+      ? Math.min(
+          100,
+          Math.round(data.completed / data.total * 100)
+        )
+      : 0;
+
+    $("fill").style.width = percent + "%";
+    $("percent").textContent = percent + "%";
+
+    $("progressText").textContent =
+      `${String(data.status).toUpperCase()} — ` +
+      `${data.completed} / ${data.total || "?"} chunks`;
+
+    $("modelTime").textContent =
+      `Model processing time: ${data.model_seconds ?? 0}s`;
+
+    if (data.status === "complete") {
+      render(data.report);
+      showMessage(
+        "✓ Analysis completed successfully. Report ready.",
+        "success"
+      );
+      $("start").disabled = false;
+      $("retry").hidden = true;
+      return;
+    }
+
+    if (data.status === "failed") {
+      showMessage(
+        "Analysis failed: " + (data.error || "Unknown error"),
+        "error"
+      );
+      $("summaryState").textContent = "Analysis failed";
+      $("retry").hidden = false;
+      $("start").disabled = false;
+      return;
+    }
+
+    timer = setTimeout(poll, 1200);
+
+  } catch (error) {
+    showMessage(
+      "Status check failed: " + error.message,
+      "error"
+    );
+    timer = setTimeout(poll, 3000);
+  }
+}
+
+$("retry").onclick = async () => {
+  if (!jid) return;
+
+  $("retry").disabled = true;
+
+  try {
+    const response = await fetch(
+      "/api/jobs/" + jid + "/resume",
+      { method: "POST" }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Could not resume");
+    }
+
+    $("retry").hidden = true;
+    $("start").disabled = true;
+    $("summaryState").textContent = "Analysis resumed";
+    showMessage("Resuming saved analysis…", "success");
+    poll();
+
+  } catch (error) {
+    showMessage(error.message, "error");
+  } finally {
+    $("retry").disabled = false;
+  }
+};
+
+$("search").addEventListener("input", renderFindings);
+
+document.querySelectorAll(".filter").forEach(button => {
+  button.addEventListener("click", () => {
+    activeSeverity = button.dataset.severity;
+
+    document.querySelectorAll(".filter").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    renderFindings();
+  });
+});
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    const id = button.dataset.target;
+    const target = $(id);
+
+    if (!target) return;
+
+    if (id === "findingsSection" && $("report").hidden) {
+      showMessage(
+        "Run an analysis first to view security findings.",
+        "error"
+      );
+      return;
+    }
+
+    document.querySelectorAll(".nav-btn").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+});
+
+$("export").onclick = () => {
+  if (!lastReport) return;
+
+  const blob = new Blob(
+    [JSON.stringify(lastReport, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "sentinel-security-report.json";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+</script>
+</body>
+</html>
